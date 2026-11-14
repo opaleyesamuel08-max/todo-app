@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { loadTasks, persistTasks } from "./taskStorage";
+import NotificationSettings from "./NotificationSettings.jsx";
+import { reminderInstant } from "./reminderTime.js";
 import "./App.css";
 
 const FILTERS = [
@@ -9,7 +11,7 @@ const FILTERS = [
   { value: "completed", label: "Completed" },
 ];
 
-const EMPTY_DRAFT = { name: "", due: "", priority: "normal" };
+const EMPTY_DRAFT = { name: "", due: "", priority: "normal", reminderTime: "" };
 
 function getLocalDate(date) {
   const year = date.getFullYear();
@@ -32,6 +34,7 @@ export default function App() {
   const [filter, setFilter] = useState("all");
   const [editingId, setEditingId] = useState(null);
   const [now, setNow] = useState(() => new Date());
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     function updateDate() {
@@ -65,6 +68,7 @@ export default function App() {
   function resetForm() {
     setDraft(EMPTY_DRAFT);
     setEditingId(null);
+    setFormError("");
   }
 
   function saveTask(event) {
@@ -73,7 +77,16 @@ export default function App() {
     const name = draft.name.trim();
     if (!name) return;
 
-    const details = { ...draft, name };
+    const reminderAt = draft.reminderTime ? reminderInstant(draft.due, draft.reminderTime) : null;
+    const existing = tasks.find(task => task.id === editingId);
+    if (draft.reminderTime && (!reminderAt ||
+        (Date.parse(reminderAt) <= Date.now() && reminderAt !== existing?.reminderAt))) {
+      setFormError("Choose a valid future due date and reminder time.");
+      return;
+    }
+    const details = { ...draft, name, ...(reminderAt ? { reminderAt } : {}) };
+    // An explicit null removes a previous reminder when its time is cleared.
+    if (!reminderAt) details.reminderAt = null;
 
     if (editingId !== null) {
       updateTasks(
@@ -96,7 +109,9 @@ export default function App() {
       name: task.name,
       due: task.due ?? "",
       priority: task.priority ?? "normal",
+      reminderTime: task.reminderTime ?? "",
     });
+    setFormError("");
     document.getElementById("task-name").focus();
   }
 
@@ -165,7 +180,7 @@ export default function App() {
                 id="task-date"
                 type="date"
                 value={draft.due}
-                onChange={event => setDraft({ ...draft, due: event.target.value })}
+                onChange={event => setDraft({ ...draft, due: event.target.value, reminderTime: event.target.value ? draft.reminderTime : "" })}
               />
             </div>
 
@@ -181,6 +196,14 @@ export default function App() {
               </select>
             </div>
 
+            <div className="reminder-field">
+              <label htmlFor="task-reminder">Reminder time <small>(optional)</small></label>
+              <input id="task-reminder" type="time" value={draft.reminderTime}
+                disabled={!draft.due}
+                onChange={event => setDraft({ ...draft, reminderTime: event.target.value })}
+                aria-describedby="reminder-help" />
+              <small id="reminder-help">On the due date, in this device's time zone. Enable phone reminders below.</small>
+            </div>
             <div className="form-actions">
               <button className="primary-button" type="submit" disabled={!draft.name.trim()}>
                 {editingId === null ? "Add task" : "Save changes"}
@@ -190,6 +213,8 @@ export default function App() {
               )}
             </div>
           </form>
+
+          {formError && <p role="alert">{formError}</p>}
 
           {storageError && (
             <p role="status">Saved tasks could not be fully loaded or saved. Changes may be lost on refresh.</p>
@@ -238,6 +263,7 @@ export default function App() {
                             {formatDate(task.due)}
                           </time>
                         )}
+                        {task.reminderAt && <span>Reminder {new Date(task.reminderAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>}
                         {task.priority === "high" && <span className="priority">High priority</span>}
                       </div>
                     </div>
@@ -261,6 +287,7 @@ export default function App() {
             </ul>
           )}
         </section>
+        <NotificationSettings tasks={tasks} />
       </div>
     </main>
   );

@@ -33,6 +33,12 @@ test("task storage handles reloads, invalid data, and unavailable storage", asyn
     assert.deepEqual(loadTasks(), { tasks: [task], storageError: true });
   });
 
+  await t.test("retains reminder times when tasks are reloaded", () => {
+    const reminderTask = { ...task, reminderTime: "09:30", reminderAt: "2026-11-14T17:30:00.000Z" };
+    assert.equal(persistTasks([reminderTask]), false);
+    assert.deepEqual(loadTasks().tasks, [reminderTask]);
+  });
+
   await t.test("normalizes invalid dates and unsupported field values", () => {
     saved = JSON.stringify([{ ...task, due: "2026-02-30", priority: {}, done: "false" }]);
     assert.deepEqual(loadTasks().tasks, [{ ...task, due: "", priority: "normal", done: false }]);

@@ -17,6 +17,10 @@ function normalizeTask(task) {
     due,
     priority: task.priority === "high" ? "high" : "normal",
     done: task.done === true,
+    ...(typeof task.reminderTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(task.reminderTime) &&
+      typeof task.reminderAt === "string" && Number.isFinite(Date.parse(task.reminderAt)) && due
+      ? { reminderTime: task.reminderTime, reminderAt: new Date(task.reminderAt).toISOString() }
+      : {}),
   };
 }
 

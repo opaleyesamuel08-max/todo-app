@@ -40,6 +40,10 @@
 
 .task-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .task-name-field, .form-actions { grid-column: 1 / -1; }
+.reminder-field { grid-column: 1 / -1; }
+.reminder-field small { display: block; margin-top: 4px; }
+.notification-settings { margin-top: 28px; padding-top: 24px; border-top: 1px solid #d7e4da; }
+.notification-settings p { color: #496257; font-size: .875rem; }
 .task-form label { display: block; margin-bottom: 6px; font-weight: 600; }
 .task-form small { font-weight: 400; color: #496257; }
 .task-form input, .task-form select {
