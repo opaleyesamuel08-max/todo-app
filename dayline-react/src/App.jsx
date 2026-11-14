@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadTasks, persistTasks } from "./taskStorage";
-import NotificationSettings from "./NotificationSettings.jsx";
+import CalendarReminders from "./CalendarReminders.jsx";
 import { reminderInstant } from "./reminderTime.js";
 import "./App.css";
 
@@ -202,7 +202,7 @@ export default function App() {
                 disabled={!draft.due}
                 onChange={event => setDraft({ ...draft, reminderTime: event.target.value })}
                 aria-describedby="reminder-help" />
-              <small id="reminder-help">On the due date, in this device's time zone. Enable phone reminders below.</small>
+              <small id="reminder-help">On the due date, in this device's time zone. Export it to your calendar below to set an alert.</small>
             </div>
             <div className="form-actions">
               <button className="primary-button" type="submit" disabled={!draft.name.trim()}>
@@ -287,7 +287,7 @@ export default function App() {
             </ul>
           )}
         </section>
-        <NotificationSettings tasks={tasks} />
+        <CalendarReminders tasks={tasks} now={now} />
       </div>
     </main>
   );

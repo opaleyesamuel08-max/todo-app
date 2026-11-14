@@ -2,7 +2,7 @@
 
 A React task planner with due dates, priorities, editing, completion tracking, and filters for all, active, completed, and today's tasks.
 
-Optional phone push reminders support chosen dates and times on iPhone and Android. Follow [the notification setup guide](NOTIFICATIONS.md) to connect Upstash and activate them on Vercel.
+This is a frontend-only app with no backend, accounts, or external services. Optional reminder times can be exported as an .ics file for a compatible calendar app. See [calendar reminder instructions](NOTIFICATIONS.md).
 
 Tasks are saved in this browser's local storage. If storage is unavailable, the app shows a warning; changes in that session may be lost on refresh.
 

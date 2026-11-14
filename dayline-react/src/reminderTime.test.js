@@ -17,7 +17,7 @@ test("reminders use the device's local time and reject nonexistent DST times", (
   }
 });
 
-test("only active future reminders are sent to the scheduler", () => {
+test("only active future reminders are included in calendar exports", () => {
   const now = Date.parse("2026-11-14T20:00:00Z");
   const task = { id: "one", name: "Review", reminderAt: "2026-11-14T21:00:00.000Z" };
   assert.deepEqual(scheduledTasks([task, { ...task, done: true }, { ...task, reminderAt: "2026-11-13T20:00:00Z" }, { id: "two", name: "No reminder" }], now),
